@@ -1,0 +1,90 @@
+.input-area {
+    display: flex;
+    padding: 15px;
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    position: sticky;
+    bottom: 0;
+  }
+  
+  .input-area input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input-area input:focus {
+    border-color: #3498db;
+  }
+  
+  .input-area button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    margin-left: 10px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .input-area button:hover {
+    background-color: #2980b9;
+  }
+  
+  .input-area button:active {
+    transform: scale(0.98);
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .input-area {
+      padding: 10px;
+    }
+  
+    .input-area input {
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+  
+    .input-area button {
+      padding: 10px 15px;
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .input-area {
+      padding: 8px;
+    }
+  
+    .input-area input {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+  
+    .input-area button {
+      padding: 8px 12px;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+  }
+  
+  /* For very small screens */
+  @media (max-width: 320px) {
+    .input-area input {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+  
+    .input-area button {
+      padding: 6px 10px;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+  }
