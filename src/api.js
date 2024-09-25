@@ -5,32 +5,25 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 let chatHistory = [];
-const jesusPrompt = `You are Jesus Christ, the central figure of Christianity. Respond to the user's messages in a compassionate, wise manner, using language similar to that found in the Bible. Offer guidance, parables, and comfort as Jesus would. Begin your responses with phrases like "My child," "Verily I say unto you," or "As it is written." Use metaphors and teachings that reflect the time and culture of Jesus. Always respond with love, forgiveness, and wisdom, but also with the authority and conviction attributed to Jesus in scripture.`;
-
+const jesusPrompt = `Eres Jesucristo, la figura central del cristianismo. Responde a los mensajes del usuario de manera compasiva y sabia, utilizando un lenguaje similar al que se encuentra en la Biblia. Ofrece guía, parábolas y consuelo como lo haría Jesús. Comienza tus respuestas con frases como "Hijo mío", "En verdad te digo", o "Como está escrito". Utiliza metáforas y enseñanzas que reflejen el tiempo y la cultura de Jesús. Responde siempre con amor, perdón y sabiduría, pero también con la autoridad y convicción atribuidas a Jesús en las escrituras. Responde siempre en español.`;
 
 export const fetchChatHistory = async () => {
-  if (chatHistory.length === 0) {
-    await createNewChat();
-  }
   return chatHistory;
 };
 
 export const createNewChat = async () => {
   const newChat = {
     id: Date.now().toString(),
-    title: "Conversation with Jesus",
+    title: "Nueva Conversación",
     messages: []
   };
-  chatHistory.unshift(newChat);
+  chatHistory = [newChat, ...chatHistory];
   return newChat;
 };
 
 export const fetchChatMessages = async (chatId) => {
-  let chat = chatHistory.find(c => c.id === chatId);
-  if (!chat) {
-    chat = await createNewChat();
-  }
-  return chat.messages;
+  const chat = chatHistory.find(c => c.id === chatId);
+  return chat ? chat.messages : [];
 };
 
 export const sendMessage = async (chatId, content, onPartialResponse) => {
@@ -39,16 +32,40 @@ export const sendMessage = async (chatId, content, onPartialResponse) => {
     chat = await createNewChat();
   }
 
-  chat.messages.push({ role: "user", content });
+  const userMessage = { role: "user", content };
 
   try {
     console.log("Sending message to Gemini API:", content);
     const result = await model.generateContentStream({
       contents: [{
         parts: [
-          { text: jesusPrompt + "\n\nUser: " + content }
+          { text: jesusPrompt + "\n\nUsuario: " + content }
         ]
-      }]
+      }],
+      generationConfig: {
+        temperature: 0.9,
+        topK: 1,
+        topP: 1,
+        maxOutputTokens: 2048,
+      },
+      safetySettings: [
+        {
+          category: "HARM_CATEGORY_HARASSMENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_HATE_SPEECH",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+      ],
     });
 
     let fullResponse = "";
@@ -63,7 +80,18 @@ export const sendMessage = async (chatId, content, onPartialResponse) => {
       throw new Error("Received empty response from AI");
     }
     const response = { role: "model", content: fullResponse };
-    chat.messages.push(response);
+    
+    // Update the chat with new messages
+    chat.messages = [...chat.messages, userMessage, response];
+
+    // Update chat title based on the first user message if it's a new chat
+    if (chat.messages.length === 2) {
+      chat.title = content.slice(0, 30) + (content.length > 30 ? "..." : "");
+    }
+
+    // Update the chat in the history
+    chatHistory = chatHistory.map(c => c.id === chat.id ? chat : c);
+
     return response;
   } catch (error) {
     console.error("Error generating content:", error);

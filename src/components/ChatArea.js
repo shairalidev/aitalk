@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { sendMessage, fetchChatMessages } from '../api';
 import InputArea from './InputArea';
+import FAQ from './FAQ';
 import './ChatArea.css';
 import jesus from '../img/jesus.jpeg'
-function ChatArea({ chatId }) {
+
+function ChatArea({ chatId, updateChatList, currentView }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,12 +14,12 @@ function ChatArea({ chatId }) {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (chatId) {
+    if (chatId && currentView === 'chat') {
       loadMessages();
     } else {
       setMessages([]);
     }
-  }, [chatId]);
+  }, [chatId, currentView]);
 
   useEffect(() => {
     scrollToBottom();
@@ -43,50 +45,47 @@ function ChatArea({ chatId }) {
     setStreamingResponse("");
 
     try {
-      const userMessage = { role: 'user', content };
-      
-      setMessages(prevMessages => [...prevMessages, userMessage]);
-
-      let aiResponse = "";
-      await sendMessage(chatId, content, (partialResponse) => {
+      const response = await sendMessage(chatId, content, (partialResponse) => {
         setStreamingResponse(partialResponse);
-        aiResponse = partialResponse;
       });
 
-      console.log("AI response:", aiResponse); // Debugging
+      setStreamingResponse("");
+      await loadMessages(); // Reload messages after sending
+      
+      // Update the chat list in the parent component
+      updateChatList({
+        id: chatId,
+        title: content.slice(0, 30) + (content.length > 30 ? "..." : ""),
+        messages: [...messages, { role: 'user', content }, response]
+      });
 
-      if (aiResponse.trim() === "") {
-        throw new Error("Received empty response from AI");
-      }
-
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { role: 'model', content: aiResponse }
-      ]);
     } catch (err) {
       console.error('Failed to send message:', err);
       setError(`Failed to send message: ${err.message}. Please try again.`);
     } finally {
       setLoading(false);
-      setStreamingResponse("");
       inputRef.current?.focus();
     }
   };
 
+  if (currentView === 'faq') {
+    return <FAQ />;
+  }
+
   return (
     <div className="chat-area">
-      <div class="chat-header">
-        <div class="header-content">
-            <div class="avatar">
-                <img src={jesus} alt="Jesus"></img>
-                <div class="online-indicator"></div>
-            </div>
-            <div class="user-info">
-                <p class="username">Jesus</p>
-                <p class="status">Online</p>
-            </div>
+      <div className="chat-header">
+        <div className="header-content">
+          <div className="avatar">
+            <img src={jesus} alt="Jesus" />
+            <div className="online-indicator"></div>
+          </div>
+          <div className="user-info">
+            <p className="username">Jesus</p>
+            <p className="status">Online</p>
+          </div>
         </div>
-     </div>
+      </div>
       <div className="messages">
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.role}`}>
@@ -105,7 +104,7 @@ function ChatArea({ chatId }) {
 
       {error && <div className="error">{error}</div>}
 
-      {loading && <div className="loading">Jesus is composing a response...</div>}
+      {loading && <div className="loading">Jesús está redactando una respuesta...</div>}
 
       <InputArea onSendMessage={handleSendMessage} inputRef={inputRef} />
     </div>

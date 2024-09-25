@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Sidebar.css';
 
-function Sidebar({ chats, onSelectChat, currentChatId }) {
+function Sidebar({ chats, onSelectChat, currentChatId, onViewChange, currentView }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isVisible, setIsVisible] = useState(!isMobile);
 
@@ -21,10 +21,8 @@ function Sidebar({ chats, onSelectChat, currentChatId }) {
   };
 
   const menuItems = [
-    { title: 'FAQ', icon: '📚' },
-    { title: 'Subscription', icon: '💳' },
-    { title: 'Settings', icon: '⚙️' },
-    { title: 'Logout', icon: '🚪' },
+    { title: 'Chats', icon: '💬', view: 'chat' },
+    { title: 'FAQ', icon: '📚', view: 'faq' }
   ];
 
   return (
@@ -36,10 +34,10 @@ function Sidebar({ chats, onSelectChat, currentChatId }) {
       )}
       <div className={`sidebar ${isVisible ? 'show' : ''}`}>
         <div className="sidebar-header">
-          {/* Your header content */}
+          <h1>Jesús, Guíame</h1>
         </div>
         <div className="sidebar-section">
-          <h2>RECENT CHATS</h2>
+          <h2>CHATS RECIENTES</h2>
           <ul className="recent-list">
             {chats.length > 0 ? (
               chats.map((chat) => (
@@ -52,18 +50,22 @@ function Sidebar({ chats, onSelectChat, currentChatId }) {
                   className={chat.id === currentChatId ? 'active' : ''}
                 >
                   <span className="icon">💬</span>
-                  {chat.title || 'New Chat'}
+                  {chat.title || 'Nueva Conversación'}
                 </li>
               ))
             ) : (
-              <li>No recent chats</li> 
+              <li>No hay chats recientes</li> 
             )}
           </ul>
         </div>
         <div className="sidebar-footer">
           <ul className="menu-list">
             {menuItems.map((item, index) => (
-              <li key={index} className="menu-item">
+              <li 
+                key={index} 
+                className={`menu-item ${currentView === item.view ? 'active' : ''}`}
+                onClick={() => onViewChange(item.view)}
+              >
                 <span className="icon">{item.icon}</span>
                 {item.title}
               </li>

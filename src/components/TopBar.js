@@ -8,7 +8,7 @@ function TopBar({ onNewChat, onToggleSidebar }) {
         <button className="mobile-menu-toggle" onClick={onToggleSidebar}>☰</button>
         <div className="logo">Jesús, Guíame</div>
       </div>
-      <button className="new-chat-btn" onClick={onNewChat}>New Chat</button>
+      <button className="new-chat-btn" onClick={onNewChat}>Nuevo Chat</button>
     </div>
   );
 }

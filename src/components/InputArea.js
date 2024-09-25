@@ -19,9 +19,9 @@ function InputArea({ onSendMessage, inputRef }) {
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Type your message here..."
+        placeholder="Escribe tu mensaje aquí..."
       />
-      <button type="submit">Send</button>
+      <button type="submit">Enviar</button>
     </form>
   );
 }
