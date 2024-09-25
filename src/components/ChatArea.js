@@ -44,19 +44,24 @@ function ChatArea({ chatId, updateChatList, currentView }) {
     setError(null);
     setStreamingResponse("");
 
+    // Immediately add the user's message to the chat
+    const userMessage = { role: 'user', content };
+    setMessages(prevMessages => [...prevMessages, userMessage]);
+
     try {
       const response = await sendMessage(chatId, content, (partialResponse) => {
         setStreamingResponse(partialResponse);
       });
 
+      // Add the final AI response to the messages
+      setMessages(prevMessages => [...prevMessages, response]);
       setStreamingResponse("");
-      await loadMessages(); // Reload messages after sending
       
       // Update the chat list in the parent component
       updateChatList({
         id: chatId,
         title: content.slice(0, 30) + (content.length > 30 ? "..." : ""),
-        messages: [...messages, { role: 'user', content }, response]
+        messages: [...messages, userMessage, response]
       });
 
     } catch (err) {

@@ -25,6 +25,10 @@ function Sidebar({ chats, onSelectChat, currentChatId, onViewChange, currentView
     { title: 'FAQ', icon: '📚', view: 'faq' }
   ];
 
+  // Filter out duplicate chats
+  const uniqueChats = Array.from(new Set(chats.map(chat => chat.id)))
+    .map(id => chats.find(chat => chat.id === id));
+
   return (
     <>
       {isMobile && (
@@ -39,8 +43,8 @@ function Sidebar({ chats, onSelectChat, currentChatId, onViewChange, currentView
         <div className="sidebar-section">
           <h2>CHATS RECIENTES</h2>
           <ul className="recent-list">
-            {chats.length > 0 ? (
-              chats.map((chat) => (
+            {uniqueChats.length > 0 ? (
+              uniqueChats.map((chat) => (
                 <li
                   key={chat.id}
                   onClick={() => {
