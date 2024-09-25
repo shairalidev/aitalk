@@ -169,8 +169,8 @@ li:hover .icon {
   }
 
   .sidebar-toggle {
-      position: fixed;
-      top: 5px;
+      position: absolute;
+      top: -50px;
       left: 10px;
       z-index: 1001;
       background-color: #1e2a38;
@@ -181,7 +181,7 @@ li:hover .icon {
       border-radius: 8px;
       font-size: 18px;
       transition: all 0.2s ease;
-      display: flex;
+      display: block;
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
