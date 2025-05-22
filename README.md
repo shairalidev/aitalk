@@ -64,12 +64,3 @@ I independently developed both the **frontend** and **backend** of the project, 
 - Faith-based AI experimentation  
 - Encouragement during times of doubt  
 
----
-
-## 📌 Optional Enhancements
-
-Would you like help with any of the following?
-
-- 📘 Auto-generate a `README.md` file for GitHub  
-- 🌐 SEO-optimized landing page content  
-- 🎨 Logo and favicon design for branding  
