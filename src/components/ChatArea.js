@@ -73,6 +73,38 @@ function ChatArea({ chatId, updateChatList, currentView }) {
     }
   };
 
+  // Function to play text using SpeechSynthesis
+  const playVoice = (text) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Stop any current speech
+      const utterance = new window.SpeechSynthesisUtterance(text);
+      utterance.rate = 0.75; // Even slower for more depth
+      utterance.pitch = 0.4; // Lower pitch for heavier voice
+      utterance.volume = 1;
+
+      // Try to pick the deepest, heaviest male English voice available
+      const voices = window.speechSynthesis.getVoices();
+      const deepVoice =
+        voices.find(
+          v =>
+            v.lang.toLowerCase().startsWith('en') &&
+            (v.name.toLowerCase().includes('baritone') ||
+             v.name.toLowerCase().includes('bass') ||
+             v.name.toLowerCase().includes('male') ||
+             v.name.toLowerCase().includes('voice') ||
+             v.name.toLowerCase().includes('deep'))
+        ) ||
+        voices.find(
+          v =>
+            v.lang.toLowerCase().startsWith('en') &&
+            v.gender === 'male'
+        ) ||
+        voices[0];
+      if (deepVoice) utterance.voice = deepVoice;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   if (currentView === 'faq') {
     return <FAQ />;
   }
@@ -96,6 +128,16 @@ function ChatArea({ chatId, updateChatList, currentView }) {
           <div key={index} className={`message ${msg.role}`}>
             <strong>{msg.role === 'user' ? 'You' : 'Jesus'}</strong>
             {msg.content}
+            {msg.role === 'model' && (
+              <button
+                className="play-btn"
+                title="Play response"
+                onClick={() => playVoice(msg.content)}
+                style={{ marginLeft: 8, cursor: 'pointer' }}
+              >
+                ▶️
+              </button>
+            )}
           </div>
         ))}
         {streamingResponse && (
@@ -109,7 +151,7 @@ function ChatArea({ chatId, updateChatList, currentView }) {
 
       {error && <div className="error">{error}</div>}
 
-      {loading && <div className="loading">Jesús está redactando una respuesta...</div>}
+      {loading && <div className="loading">Jesus is typing a response...</div>}
 
       <InputArea onSendMessage={handleSendMessage} inputRef={inputRef} />
     </div>

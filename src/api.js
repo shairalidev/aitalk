@@ -1,11 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = "AIzaSyAKlVjMgHm0ArJqQiWNmXHnYr-ZPKL88CI";
+// Use environment variable injected by your build tool
+const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 let chatHistory = [];
-const jesusPrompt = `Eres Jesucristo, la figura central del cristianismo. Responde a los mensajes del usuario de manera compasiva y sabia, utilizando un lenguaje similar al que se encuentra en la Biblia. Ofrece guía, parábolas y consuelo como lo haría Jesús. Comienza tus respuestas con frases como "Hijo mío", "En verdad te digo", o "Como está escrito". Utiliza metáforas y enseñanzas que reflejen el tiempo y la cultura de Jesús. Responde siempre con amor, perdón y sabiduría, pero también con la autoridad y convicción atribuidas a Jesús en las escrituras. Responde siempre en español.`;
+
+const getPrompt = () => {
+  return `You are Jesus Christ. Respond with warmth, compassion, and understanding. Offer helpful, supportive, and encouraging guidance for any question or topic the user brings up. Use simple, clear, and short sentences. Be open to any conversation, and make the user feel heard and valued. If the user's message is in a language other than English, reply in that language; otherwise, reply in English.`;
+};
 
 export const fetchChatHistory = async () => {
   return chatHistory;
@@ -14,8 +18,8 @@ export const fetchChatHistory = async () => {
 export const createNewChat = async () => {
   const newChat = {
     id: Date.now().toString(),
-    title: "Nueva Conversación",
-    messages: []
+    title: "New Chat",
+    messages: [],
   };
   chatHistory = [newChat, ...chatHistory];
   return newChat;
@@ -32,21 +36,21 @@ export const sendMessage = async (chatId, content, onPartialResponse) => {
     chat = await createNewChat();
   }
 
+  const prompt = getPrompt();
   const userMessage = { role: "user", content };
 
   try {
-    console.log("Sending message to Gemini API:", content);
     const result = await model.generateContentStream({
       contents: [{
         parts: [
-          { text: jesusPrompt + "\n\nUsuario: " + content }
+          { text: prompt + "\n\nUser: " + content }
         ]
       }],
       generationConfig: {
-        temperature: 0.9,
+        temperature: 0.7,
         topK: 1,
         topP: 1,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 256,
       },
       safetySettings: [
         {
@@ -75,13 +79,11 @@ export const sendMessage = async (chatId, content, onPartialResponse) => {
       onPartialResponse(fullResponse);
     }
 
-    console.log("Received full response from Gemini API:", fullResponse);
     if (fullResponse.trim() === "") {
       throw new Error("Received empty response from AI");
     }
     const response = { role: "model", content: fullResponse };
-    
-    // Update the chat with new messages
+
     chat.messages = [...chat.messages, userMessage, response];
 
     // Update chat title based on the first user message if it's a new chat
@@ -89,7 +91,6 @@ export const sendMessage = async (chatId, content, onPartialResponse) => {
       chat.title = content.slice(0, 30) + (content.length > 30 ? "..." : "");
     }
 
-    // Update the chat in the history
     chatHistory = chatHistory.map(c => c.id === chat.id ? chat : c);
 
     return response;

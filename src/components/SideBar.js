@@ -25,9 +25,10 @@ function Sidebar({ chats, onSelectChat, currentChatId, onViewChange, currentView
     { title: 'FAQ', icon: '📚', view: 'faq' }
   ];
 
-  // Filter out duplicate chats
+  // Filter out duplicate chats and remove empty chats (no messages)
   const uniqueChats = Array.from(new Set(chats.map(chat => chat.id)))
-    .map(id => chats.find(chat => chat.id === id));
+    .map(id => chats.find(chat => chat.id === id))
+    .filter(chat => chat && chat.messages && chat.messages.length > 0);
 
   return (
     <>
@@ -38,10 +39,10 @@ function Sidebar({ chats, onSelectChat, currentChatId, onViewChange, currentView
       )}
       <div className={`sidebar ${isVisible ? 'show' : ''}`}>
         <div className="sidebar-header">
-          <h1>Jesús, Guíame</h1>
+          <h1>Jesus, Guide Me</h1>
         </div>
         <div className="sidebar-section">
-          <h2>CHATS RECIENTES</h2>
+          <h2>RECENT CHATS</h2>
           <ul className="recent-list">
             {uniqueChats.length > 0 ? (
               uniqueChats.map((chat) => (
@@ -54,11 +55,11 @@ function Sidebar({ chats, onSelectChat, currentChatId, onViewChange, currentView
                   className={chat.id === currentChatId ? 'active' : ''}
                 >
                   <span className="icon">💬</span>
-                  {chat.title || 'Nueva Conversación'}
+                  {chat.title || 'New Conversation'}
                 </li>
               ))
             ) : (
-              <li>No hay chats recientes</li> 
+              <li>No recent chats</li> 
             )}
           </ul>
         </div>

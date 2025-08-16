@@ -6,9 +6,9 @@ function TopBar({ onNewChat, onToggleSidebar }) {
     <div className="top-bar">
       <div className="left-section">
         <button className="mobile-menu-toggle" onClick={onToggleSidebar}>☰</button>
-        <div className="logo">Jesús, Guíame</div>
+        <div className="logo">Jesus, Guide Me</div>
       </div>
-      <button className="new-chat-btn" onClick={onNewChat}>Nuevo Chat</button>
+      <button className="new-chat-btn" onClick={onNewChat}>New Chat</button>
     </div>
   );
 }
